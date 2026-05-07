@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16
+    container_name: stream-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: online_streaming_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stream-app
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/online_streaming_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+    volumes:
+      - ./video:/app/video
+
+volumes:
+  pgdata:
